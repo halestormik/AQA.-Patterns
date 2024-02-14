@@ -1,0 +1,133 @@
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.SelenideElement;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Keys;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.open;
+
+public class ReplanCardDeliveryTest {
+
+    @BeforeEach
+    void setupAll() {
+        open("http://localhost:9999");
+    }
+
+    @Test
+    public void shouldTestFormWithAnotherDateOfDelivery() { // проверка Happy path
+        SelenideElement form = $("form");
+        form.$("[data-test-id=city] input").setValue(DataGenerator.generateCity("ru"));
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(4));
+        form.$("[data-test-id=name] input").setValue(DataGenerator.generateName("ru"));
+        form.$("[data-test-id=phone] input").setValue(DataGenerator.generatePhone("ru"));
+        form.$("[data-test-id=agreement]").click();
+        form.$$("button").last().click();
+
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(6)); // установка другой даты
+        form.$$("button").last().click();
+        $("[data-test-id=replan-notification] .button").click(); // клик по кнопке "Перепланировать"
+
+        $("[data-test-id=success-notification]")
+                .shouldHave(Condition.text("Встреча успешно запланирована на " + $("[data-test-id=date] input").getText()))
+                .shouldBe(Condition.visible);
+    }
+
+    @Test
+    public void shouldTestFormWithIncorrectCityName() { // проверка валидации поля "город"
+        SelenideElement form = $("form");
+        form.$("[data-test-id=city] input").setValue(DataGenerator.generateCity("en"));
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(4));
+        form.$("[data-test-id=name] input").setValue(DataGenerator.generateName("ru"));
+        form.$("[data-test-id=phone] input").setValue(DataGenerator.generatePhone("ru"));
+        form.$("[data-test-id=agreement]").click();
+        form.$$("button").last().click();
+
+        $("[data-test-id=city].input_invalid")
+                .shouldHave(Condition.text("Доставка в выбранный город недоступна"))
+                .shouldBe(Condition.visible);
+
+        form.$("[data-test-id=city] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля "Фамилия и имя"
+        form.$("[data-test-id=city] input").setValue(""); // ввод пустой строки
+        form.$$("button").last().click();
+        $("[data-test-id=city].input_invalid")
+                .shouldHave(Condition.text("Поле обязательно для заполнения"))
+                .shouldBe(Condition.visible);
+
+        form.$("[data-test-id=city] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля "Фамилия и имя"
+        form.$("[data-test-id=city] input").setValue(" "); // ввод пробела
+        form.$$("button").last().click();
+        $("[data-test-id=city].input_invalid")
+                .shouldHave(Condition.text("Поле обязательно для заполнения"))
+                .shouldBe(Condition.visible);
+    }
+
+    @Test
+    public void shouldTestFormWithIncorrectDate() { // проверка валидации поля "дата"
+        SelenideElement form = $("form");
+        form.$("[data-test-id=city] input").setValue(DataGenerator.generateCity("ru"));
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(0)); // вставка текущей даты
+        form.$("[data-test-id=name] input").setValue(DataGenerator.generateName("ru"));
+        form.$("[data-test-id=phone] input").setValue(DataGenerator.generatePhone("ru"));
+        form.$("[data-test-id=agreement]").click();
+        form.$$("button").last().click();
+
+        $("[data-test-id=date] .input_invalid")
+                .shouldHave(Condition.text("Заказ на выбранную дату невозможен"))
+                .shouldBe(Condition.visible);
+
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(-1)); // вставка даты, предшествующей текущей
+        form.$$("button").last().click();
+        $("[data-test-id=date] .input_invalid")
+                .shouldHave(Condition.text("Заказ на выбранную дату невозможен"))
+                .shouldBe(Condition.visible);
+
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(1)); // вставка даты, следующей за текущей
+        form.$$("button").last().click();
+        $("[data-test-id=date] .input_invalid")
+                .shouldHave(Condition.text("Заказ на выбранную дату невозможен"))
+                .shouldBe(Condition.visible);
+
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(2)); // вставка даты +2 дня за текущей
+        form.$$("button").last().click();
+        $("[data-test-id=date] .input_invalid")
+                .shouldHave(Condition.text("Заказ на выбранную дату невозможен"))
+                .shouldBe(Condition.visible);
+    }
+
+    @Test
+    public void shouldTestFormWithIncorrectName() { // проверка валидации поля "имя"
+        SelenideElement form = $("form");
+        form.$("[data-test-id=city] input").setValue(DataGenerator.generateCity("ru"));
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(4));
+        form.$("[data-test-id=name] input").setValue(DataGenerator.generateName("en")); // генерация имени с локалью en
+        form.$("[data-test-id=phone] input").setValue(DataGenerator.generatePhone("ru"));
+        form.$("[data-test-id=agreement]").click();
+        form.$$("button").last().click();
+
+        $("[data-test-id=name].input_invalid")
+                .shouldHave(Condition.text("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."))
+                .shouldBe(Condition.visible);
+
+        form.$("[data-test-id=name] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля "Фамилия и имя"
+        form.$("[data-test-id=name] input").setValue(""); // ввод пустой строки
+        form.$$("button").last().click();
+        $("[data-test-id=name].input_invalid")
+                .shouldHave(Condition.text("Поле обязательно для заполнения"))
+                .shouldBe(Condition.visible);
+
+        form.$("[data-test-id=name] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля "Фамилия и имя"
+        form.$("[data-test-id=name] input").setValue(" "); // ввод пробела
+        form.$$("button").last().click();
+        $("[data-test-id=name].input_invalid")
+                .shouldHave(Condition.text("Поле обязательно для заполнения"))
+                .shouldBe(Condition.visible);
+    }
+}
