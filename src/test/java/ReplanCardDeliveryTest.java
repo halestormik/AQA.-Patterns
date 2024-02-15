@@ -131,20 +131,19 @@ public class ReplanCardDeliveryTest {
                 .shouldBe(Condition.visible);
     }
 
-    /*@Test
+    @Test
     public void shouldTestFormWithIncorrectPhone() { // проверка валидации поля "телефона"
         SelenideElement form = $("form");
         form.$("[data-test-id=city] input").setValue(DataGenerator.generateCity("ru"));
         form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
         form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(4));
-        form.$("[data-test-id=name] input").setValue(DataGenerator.generateName("en")); // генерация имени с локалью en
-        form.$("[data-test-id=phone] input").setValue("+9514");
+        form.$("[data-test-id=name] input").setValue(DataGenerator.generateName("ru"));
+        form.$("[data-test-id=phone] input").setValue("+9514"); // ввод заведомо неверного номера телефона (меньше 11 цифр)
         form.$("[data-test-id=agreement]").click();
         form.$$("button").last().click();
 
         $("[data-test-id=phone].input_invalid")
-                .shouldHave(Condition.text("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."))
+                .shouldHave(Condition.text("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."))
                 .shouldBe(Condition.visible);
-
-    }*/
+    }
 }
