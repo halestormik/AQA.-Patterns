@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class DataGenerator {
-    DataGenerator() {
+    private DataGenerator() {
     }
     private static Faker faker;
 
@@ -14,11 +14,6 @@ public class DataGenerator {
         return phone.replace("(","")
                 .replace(")","")
                 .replace("-", "");
-    }
-
-    @BeforeEach
-    void setupAll() {
-        faker = new Faker();
     }
 
     public static String generateDate(int days) {
@@ -39,25 +34,5 @@ public class DataGenerator {
         faker = new Faker(new Locale(locale));
         return PhonePattern(faker.phoneNumber().phoneNumber());
     }
-
-
-/*public static class Registration {
-        private Registration() {
-        }
-
-        public static UserInfo generateUser(String locale) {
-            // TODO: добавить логику для создания пользователя user с использованием методов generateCity(locale),
-            // generateName(locale), generatePhone(locale)
-            return user;
-        }
-    }
-
-    @Value
-    public static class UserInfo {
-        String city;
-        String name;
-        String phone;
-    }*/
-
 }
 

@@ -3,6 +3,7 @@ import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
+
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
@@ -24,13 +25,21 @@ public class ReplanCardDeliveryTest {
         form.$("[data-test-id=agreement]").click();
         form.$$("button").last().click();
 
+        $("[data-test-id=success-notification]")
+                .shouldHave(Condition.text("Встреча успешно запланирована на " + DataGenerator.generateDate(4)))
+                .shouldBe(Condition.visible);
+
         form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
         form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(6)); // установка другой даты
         form.$$("button").last().click();
+        $("[data-test-id=replan-notification]")
+                .shouldHave(Condition.text("У вас уже запланирована встреча на другую дату. Перепланировать?"))
+                .shouldBe(Condition.visible);
+
         $("[data-test-id=replan-notification] .button").click(); // клик по кнопке "Перепланировать"
 
         $("[data-test-id=success-notification]")
-                .shouldHave(Condition.text("Встреча успешно запланирована на " + $("[data-test-id=date] input").getText()))
+                .shouldHave(Condition.text("Встреча успешно запланирована на " + DataGenerator.generateDate(6)))
                 .shouldBe(Condition.visible);
     }
 
