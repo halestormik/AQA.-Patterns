@@ -130,4 +130,21 @@ public class ReplanCardDeliveryTest {
                 .shouldHave(Condition.text("Поле обязательно для заполнения"))
                 .shouldBe(Condition.visible);
     }
+
+    /*@Test
+    public void shouldTestFormWithIncorrectPhone() { // проверка валидации поля "телефона"
+        SelenideElement form = $("form");
+        form.$("[data-test-id=city] input").setValue(DataGenerator.generateCity("ru"));
+        form.$("[data-test-id=date] input").sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE); // очистка поля даты
+        form.$("[data-test-id=date] input").setValue(DataGenerator.generateDate(4));
+        form.$("[data-test-id=name] input").setValue(DataGenerator.generateName("en")); // генерация имени с локалью en
+        form.$("[data-test-id=phone] input").setValue("+9514");
+        form.$("[data-test-id=agreement]").click();
+        form.$$("button").last().click();
+
+        $("[data-test-id=phone].input_invalid")
+                .shouldHave(Condition.text("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."))
+                .shouldBe(Condition.visible);
+
+    }*/
 }
